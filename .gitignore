@@ -1,0 +1,26 @@
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Test/cache artifacts
+.pytest_cache/
+
+# Local credentials
+.env
+
+# Local runtime state and CRM snapshots
+data/
+
+# Streamlit local configuration
+.streamlit/
+
+# Development/debug artifacts
+homepage.html
+openapi.json
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db

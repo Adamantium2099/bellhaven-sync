@@ -1,0 +1,50 @@
+name: Daily Bellhaven Reconciliation
+
+on:
+  schedule:
+    # Run once per day at 12:00 UTC.
+    - cron: "0 12 * * *"
+
+  # Also allow a reviewer to run the pipeline manually from GitHub.
+  workflow_dispatch:
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      CRM_API_TOKEN: ${{ secrets.CRM_API_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Scrape current Bellhaven website
+        run: python scraper.py
+
+      - name: Download current CRM snapshot
+        run: python crm_client.py
+
+      - name: Generate reconciliation proposals
+        run: python matcher.py
+
+      - name: Upload reconciliation output
+        uses: actions/upload-artifact@v4
+        with:
+          name: bellhaven-reconciliation-proposals
+          path: data/proposals.json
+          if-no-files-found: error
